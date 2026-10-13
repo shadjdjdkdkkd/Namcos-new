@@ -115,6 +115,21 @@ export default function CustomerProfile() {
         </div>
       </section>
 
+      {/* Merchant Dashboard — one click */}
+      <section className="px-4 pt-5">
+        <button onClick={() => navigate('/merchant')} data-testid="open-merchant-dashboard-btn"
+          className="w-full flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-card-hover transition-all active:scale-95">
+          <div className="w-10 h-10 rounded-xl bg-[#0F4C3A]/10 flex items-center justify-center flex-shrink-0">
+            <Store className="w-5 h-5 text-[#0F4C3A]" />
+          </div>
+          <div className="flex-1 text-left">
+            <p className="text-sm font-bold text-slate-800">Merchant Dashboard</p>
+            <p className="text-[11px] text-slate-500">Manage your business, orders, payments &amp; withdrawals</p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-slate-300" />
+        </button>
+      </section>
+
       {/* Start Selling */}
       <section className="px-4 pt-5">
         <h2 className="text-sm font-bold text-slate-700 mb-3">Start Selling / Providing</h2>

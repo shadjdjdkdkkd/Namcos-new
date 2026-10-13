@@ -114,6 +114,43 @@ async def get_all_tickets(request: Request, status: Optional[str] = None, skip: 
     tickets = await db.support_tickets.find(query).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     return [doc(t) for t in tickets]
 
+class TicketReply(BaseModel):
+    message: Optional[str] = None
+    status: Optional[str] = None  # open, in_progress, resolved, closed
+
+@common_router.put("/support/tickets/{ticket_id}")
+async def update_ticket(ticket_id: str, req: TicketReply, request: Request):
+    """Admin replies to / updates the status of a support ticket."""
+    user = await get_current_user(request, db)
+    if not any(r in user.get("roles", []) for r in ["admin", "super_admin"]):
+        raise HTTPException(403, "Admin access required")
+    try:
+        ticket = await db.support_tickets.find_one({"_id": ObjectId(ticket_id)})
+    except Exception:
+        raise HTTPException(400, "Invalid ticket ID")
+    if not ticket:
+        raise HTTPException(404, "Ticket not found")
+    now = datetime.now(timezone.utc).isoformat()
+    update = {}
+    if req.status:
+        update["status"] = req.status
+    if req.message:
+        msg = {"from": "admin", "author": user.get("name"), "text": req.message, "at": now}
+        await db.support_tickets.update_one({"_id": ObjectId(ticket_id)}, {"$push": {"messages": msg}})
+        await db.notifications.insert_one({
+            "user_id": ticket["user_id"], "title": "Support Reply",
+            "message": f"Reply on ticket #{ticket.get('ticket_id')}: {req.message[:80]}",
+            "type": "support", "entity_id": ticket_id, "is_read": False, "created_at": now})
+    if update:
+        update["updated_at"] = now
+        await db.support_tickets.update_one({"_id": ObjectId(ticket_id)}, {"$set": update})
+        if req.status in ("resolved", "closed"):
+            await db.notifications.insert_one({
+                "user_id": ticket["user_id"], "title": "Ticket Updated",
+                "message": f"Your ticket #{ticket.get('ticket_id')} was marked {req.status}",
+                "type": "support", "entity_id": ticket_id, "is_read": False, "created_at": now})
+    return {"success": True}
+
 # ─── REVIEWS ──────────────────────────────────────────────
 
 class ReviewCreate(BaseModel):

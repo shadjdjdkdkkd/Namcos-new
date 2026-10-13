@@ -16,6 +16,8 @@ import AdminCategories from './AdminCategories';
 import AdminSubcategories from './AdminSubcategories';
 import AdminInquiries from './AdminInquiries';
 import AdminManualAdd from './AdminManualAdd';
+import AdminNotifications from './AdminNotifications';
+import AdminSupport from './AdminSupport';
 
 export default function AdminApp() {
   return (
@@ -34,6 +36,8 @@ export default function AdminApp() {
         <Route path="categories" element={<AdminCategories />} />
         <Route path="subcategories" element={<AdminSubcategories />} />
         <Route path="inquiries" element={<AdminInquiries />} />
+        <Route path="notifications" element={<AdminNotifications />} />
+        <Route path="support" element={<AdminSupport />} />
         <Route path="add" element={<AdminManualAdd />} />
         <Route path="settings" element={<AdminSettings />} />
         <Route path="*" element={<Navigate to="/admin" replace />} />

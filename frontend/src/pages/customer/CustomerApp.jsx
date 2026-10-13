@@ -17,6 +17,10 @@ import AgricultureDetail from './AgricultureDetail';
 import ServiceDetail from './ServiceDetail';
 import ClassifiedDetail from './ClassifiedDetail';
 import ListingDashboard from './ListingDashboard';
+import CustomerNotifications from './CustomerNotifications';
+import CustomerSupport from './CustomerSupport';
+import CustomerSettings from './CustomerSettings';
+import CustomerAddresses from './CustomerAddresses';
 
 function SellRedirect() {
   const [params] = useSearchParams();
@@ -37,6 +41,10 @@ export default function CustomerApp() {
         <Route path="my-listings/:kind/:id/dashboard" element={<ListingDashboard />} />
         <Route path="wallet" element={<CustomerWallet />} />
         <Route path="profile" element={<CustomerProfile />} />
+        <Route path="profile/notifications" element={<CustomerNotifications />} />
+        <Route path="profile/support" element={<CustomerSupport />} />
+        <Route path="profile/settings" element={<CustomerSettings />} />
+        <Route path="profile/addresses" element={<CustomerAddresses />} />
         <Route path="cart" element={<Cart />} />
         <Route path="sell" element={<SellRedirect />} />
         <Route path="category/classifieds" element={<ClassifiedsLanding />} />

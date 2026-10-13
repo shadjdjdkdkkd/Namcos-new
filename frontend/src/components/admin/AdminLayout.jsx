@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Store, CreditCard, FileText,
-  Banknote, Settings, Menu, X, LogOut, Bell, Grid3X3, Image, Phone, Plus, Layers, Briefcase, UserCog
+  Banknote, Settings, Menu, X, LogOut, Bell, Grid3X3, Image, Phone, Plus, Layers, Briefcase, UserCog, Megaphone, LifeBuoy
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ADMIN } from '@/constants/testIds';
@@ -38,6 +38,8 @@ const NAV_GROUPS = [
     label: 'Content',
     items: [
       { to: '/admin/banners', label: 'Banners', icon: Image },
+      { to: '/admin/notifications', label: 'Notifications', icon: Megaphone },
+      { to: '/admin/support', label: 'Support Tickets', icon: LifeBuoy },
     ]
   },
   {
@@ -131,7 +133,7 @@ export default function AdminLayout({ children }) {
           </button>
           <div className="flex-1" />
           <div className="flex items-center gap-2">
-            <button className="p-2 rounded-lg hover:bg-slate-50 text-slate-500">
+            <button onClick={() => navigate('/admin/notifications')} data-testid="admin-topbar-bell" className="p-2 rounded-lg hover:bg-slate-50 text-slate-500">
               <Bell className="w-4.5 h-4.5" />
             </button>
             <button onClick={() => navigate('/customer')}

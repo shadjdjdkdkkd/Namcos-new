@@ -348,6 +348,59 @@ async def get_admin_notifications(request: Request, skip: int = 0, limit: int = 
     notifs = await db.notifications.find({"user_id": "admin"}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     return [doc(n) for n in notifs]
 
+@admin_router.post("/notifications/send")
+async def send_admin_notification(request: Request):
+    """Admin broadcasts a notification to all users or a specific user."""
+    actor = await admin_required(request)
+    body = await request.json()
+    title = (body.get("title") or "").strip()
+    message = (body.get("message") or "").strip()
+    target = body.get("target") or "all"  # "all", "customers", "merchants", or a user_id
+    if not title or not message:
+        raise HTTPException(400, "Title and message are required")
+    now = datetime.now(timezone.utc).isoformat()
+
+    if target in ("all", "customers", "merchants"):
+        query = {}
+        if target == "merchants":
+            query = {"roles": "merchant"}
+        elif target == "customers":
+            query = {"roles": {"$nin": ["admin", "super_admin"]}}
+        else:
+            query = {"roles": {"$nin": ["admin", "super_admin"]}}
+        users = await db.users.find(query, {"_id": 1}).to_list(100000)
+        if not users:
+            return {"success": True, "sent": 0}
+        docs = [{"user_id": str(u["_id"]), "title": title, "message": message,
+                 "type": "announcement", "is_read": False, "created_at": now,
+                 "sent_by": actor.get("name")} for u in users]
+        await db.notifications.insert_many(docs)
+        sent = len(docs)
+    else:
+        try:
+            u = await db.users.find_one({"_id": ObjectId(target)}, {"_id": 1})
+        except Exception:
+            raise HTTPException(400, "Invalid target user ID")
+        if not u:
+            raise HTTPException(404, "User not found")
+        await db.notifications.insert_one({
+            "user_id": str(u["_id"]), "title": title, "message": message,
+            "type": "announcement", "is_read": False, "created_at": now,
+            "sent_by": actor.get("name")})
+        sent = 1
+
+    await db.admin_announcements.insert_one({
+        "title": title, "message": message, "target": target, "sent": sent,
+        "sent_by": actor.get("name"), "created_at": now})
+    await audit(actor, "notification_sent", "notification", target, {"sent": sent, "title": title})
+    return {"success": True, "sent": sent}
+
+@admin_router.get("/announcements")
+async def get_admin_announcements(request: Request, limit: int = 50):
+    await admin_required(request)
+    items = await db.admin_announcements.find({}).sort("created_at", -1).limit(limit).to_list(limit)
+    return [doc(a) for a in items]
+
 @admin_router.get("/discounts/{discount_id}/check")
 async def check_discount(discount_id: str, amount: float):
     """Check if a discount applies to a given order amount"""

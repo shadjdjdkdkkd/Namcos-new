@@ -62,8 +62,8 @@ function StoreCard({ store }) {
       className="flex-shrink-0 w-44 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all active:scale-95">
       <div className="relative h-24 bg-gradient-to-br from-[#0F4C3A]/8 to-[#0F4C3A]/4 flex items-center justify-center">
         <DiscountBadge percent={store.discount_percent} />
-        {store.logo
-          ? <img src={store.logo} alt={store.business_name} className="h-full w-full object-cover" />
+        {(store.logo || store.cover_image || store.images?.[0])
+          ? <img src={store.logo || store.cover_image || store.images[0]} alt={store.business_name} className="h-full w-full object-cover" />
           : <Store className="w-10 h-10 text-[#0F4C3A]/25" />
         }
       </div>

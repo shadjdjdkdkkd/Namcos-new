@@ -1,0 +1,119 @@
+{
+  "brand_name": "NAMCOS",
+  "logo_url": "https://customer-assets-gfyr7b9c.emergentagent.net/job_8644c173-92fb-4985-b9f0-9ff438711506/artifacts/73hc9mup_ChatGPT%20Image%20Sep%2028%2C%202026%2C%2010_40_54%20PM.webp",
+  "archetype": "ORGANIC & PERFORMANCE PRO (Local Commerce + Fintech Trust)",
+  "theme": "Light",
+  "typography": {
+    "font_family": "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    "heading_font": "Inter, sans-serif",
+    "body_font": "Inter, sans-serif",
+    "mono_font": "JetBrains Mono, Source Code Pro, monospace",
+    "hierarchy": {
+      "h1": "text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900",
+      "h2": "text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900",
+      "h3": "text-xl sm:text-2xl font-semibold tracking-normal text-slate-900",
+      "h4": "text-lg font-medium text-slate-800",
+      "body": "text-sm sm:text-base text-slate-600 leading-relaxed",
+      "small_label": "text-xs font-semibold uppercase tracking-wider text-slate-500"
+    }
+  },
+  "colors": {
+    "primary": {
+      "hex": "#0F4C3A",
+      "hsl": "163 67% 18%",
+      "description": "Deep Green (NAMCOS Brand Anchor)"
+    },
+    "secondary_navy": {
+      "hex": "#0B192C",
+      "hsl": "215 60% 11%",
+      "description": "Dark Navy (Merchant/Admin Nav & Text Anchor)"
+    },
+    "accent_lime": {
+      "hex": "#65A30D",
+      "hsl": "84 81% 35%",
+      "description": "Subtle Fresh Lime (CTAs & Dynamic Highlights)"
+    },
+    "background": {
+      "hex": "#FAFAFA",
+      "hsl": "0 0% 98%",
+      "description": "Soft clean surface background"
+    },
+    "card_background": {
+      "hex": "#FFFFFF",
+      "hsl": "0 0% 100%",
+      "description": "Pure white rounded card surfaces"
+    },
+    "border": {
+      "hex": "#E2E8F0",
+      "hsl": "214 32% 91%",
+      "description": "Crisp light neutral border"
+    },
+    "chart_colors": [
+      "#0F4C3A",
+      "#0B192C",
+      "#65A30D",
+      "#2563EB",
+      "#F59E0B"
+    ]
+  },
+  "spacing_and_layout": {
+    "system": "8px spacing system (p-2, p-4, p-6, p-8, p-12)",
+    "card_border_radius": "rounded-2xl (16px) or rounded-xl (12px)",
+    "customer_app": "Mobile-first width constraint max-w-md mx-auto bg-white min-h-screen shadow-xl sm:my-4 sm:rounded-3xl sm:overflow-hidden sm:border sm:border-slate-200",
+    "merchant_portal": "Responsive desktop layout with sticky sidebar navigation, top header KPI strip, fluid grid widgets (3-4 cols)",
+    "admin_panel": "High density data grid layout, sticky command header, filters, data table with pagination, slide-out drawer details"
+  },
+  "visual_enhancers": {
+    "shadows": "shadow-sm for resting cards, shadow-md for hover states, shadow-lg for floating modals & floating bottom navs",
+    "glassmorphism": "backdrop-blur-md bg-white/80 border-b border-slate-200/60 for fixed top bars",
+    "states": "Every action button and card MUST include distinct loading (spinners/skeletons), success toast, error banner, empty states with clear graphics, and disabled states with opacity-50 cursor-not-allowed"
+  },
+  "image_urls": {
+    "fresh_produce_1": "https://images.unsplash.com/photo-1542838132-92c53300491e?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "fresh_produce_2": "https://images.unsplash.com/photo-1579113800032-c38bd7635818?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "market_stand": "https://images.unsplash.com/photo-1550989460-0adf9ea622e2?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "shopping_cart": "https://images.unsplash.com/photo-1628102491629-778571d893a3?crop=entropy&cs=srgb&fm=jpg&q=85"
+  },
+  "portals": {
+    "customer": {
+      "path_prefix": "/customer",
+      "description": "Mobile-first local commerce app experience with bottom navigation bar (Home, Explore, Orders, Wallet, Profile)",
+      "key_views": [
+        "Splash/Auth (OTP Login with Indian phone number format +91)",
+        "Home Feed (Location selector top bar, Banner Carousel, Category grid: Produce, Grocery, Agri, Services, Classifieds, Ads)",
+        "Store & Product Detail with add to cart & dynamic local pricing",
+        "Cart & Multi-step Checkout with address selector and payment gateway",
+        "Sell/List Something wizard (Store registration, Agri selling, Services, Classifieds)"
+      ]
+    },
+    "merchant": {
+      "path_prefix": "/merchant",
+      "description": "Desktop & tablet seller dashboard for shopkeepers, service providers, and agricultural vendors",
+      "key_views": [
+        "KPI Dashboard (Today's Sales, Orders, Settled Amount, Active Ads)",
+        "Order Management (Real-time status transition: New, Accepted, Packed, Out for Delivery, Completed)",
+        "Product/Inventory Catalog Manager with stock toggle & price update",
+        "Wallet, Settlement & Withdrawal portal with IFSC bank account details",
+        "Ad Campaign Manager"
+      ]
+    },
+    "admin": {
+      "path_prefix": "/admin",
+      "description": "System administration panel for platform moderation, merchant approvals, financial settlements, and analytics",
+      "key_views": [
+        "Global Platform Dashboard (GMV, Active Users, Total Stores, Pending Approvals)",
+        "Merchant & Product KYC Approval Queue",
+        "Withdrawal Request Approvals with audit trail",
+        "Moderation & Reports Manager",
+        "System Configuration, Discount/Offer engine, Audit Logs"
+      ]
+    }
+  },
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "All interactive elements and key text containers MUST include data-testid attributes (e.g. data-testid='login-submit-button', data-testid='cart-item-count')",
+    "Use Lucide-React icons strictly for clean consistency",
+    "Use Sonner toast notifications for feedback",
+    "Ensure total accessibility and zero transparent background cutoffs on dropdowns/popovers",
+    "No cheap gradients; rely on crisp borders, deep green #0F4C3A accents, and soft slate gray card backgrounds"
+  ]
+}

@@ -120,3 +120,15 @@ User requested a big multi-area upgrade, delivered phase-by-phase. User does mai
 - Testing iteration_4: 32/32 backend tests + frontend checks passed
 ## Backlog
 - Upgrade Twilio from trial; add the in-app notifications screen; add a real weekly sales chart (currently static data)
+
+---
+## 2026-10 Session B — Clone nam-up3 + live API integration + feature updates
+- Cloned dragon16t/nam-up3 into /app; booted clean (admin, 189 business types, demo data seeded).
+- **ALL APIs integrated & verified**: Razorpay LIVE (rzp_live_..., mock_mode=false — REAL MONEY), Cloudinary (ping ok — image uploads/host), Google Maps (backend+frontend key), Twilio Verify (Account SID + token + service VAdff8f6... → REAL SMS OTP; trial acct = verified numbers only; test phones use OTP 123456), Emergent object storage.
+- **New customer pages** (routes were dead before): /customer/profile/notifications (CustomerNotifications), /support (CustomerSupport: raise ticket + call support + my tickets), /settings (CustomerSettings: name + bank account save), /addresses (CustomerAddresses: single saved location).
+- **One-click Merchant Dashboard** button added to CustomerProfile (→ /merchant).
+- **Admin Send Notifications** page + POST /api/admin/notifications/send (all/customers/merchants/target user) + /admin/announcements history.
+- **Admin Support Tickets** page + PUT /api/support/tickets/{id} (reply + status). Nav links added in AdminLayout (Notifications, Support Tickets); top-bar bell → /admin/notifications.
+- **Image fix**: home StoreCard now falls back logo→cover_image→images[0] (root cause was unconfigured Cloudinary — now fixed). CategoryPage already had fallback.
+- Bank account auto-suggest on withdrawal already worked (useSavedPayout); admin Withdrawals already shows account details.
+- **Testing (iteration_5): 100% pass** — 5/5 backend + all frontend data-testid flows. Razorpay NOT exercised (live). Seeded wallet 5000 (+919999999999) and merchant settlement 1940 (+919876543210) for withdrawal tests.

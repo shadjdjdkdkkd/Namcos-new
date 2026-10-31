@@ -160,7 +160,7 @@ export default function AdminChain() {
           <h2 className="text-sm font-semibold text-slate-800">Default plan (template, {total(tpl)}%)</h2>
           <p className="text-xs text-slate-500">Shops without custom tiers use this shape, scaled to their own chain %.</p>
           <TierEditor tiers={tpl} setTiers={setTpl} prefix="tpl" />
-          <Button data-testid="chain-template-save" onClick={saveTpl} disabled={saving} className="bg-[#0F4C3A] hover:bg-[#0a3829] text-white rounded-xl">
+          <Button data-testid="chain-template-save" onClick={saveTpl} disabled={saving || !!tierError(tpl)} className="bg-[#0F4C3A] hover:bg-[#0a3829] text-white rounded-xl">
             {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}Save default plan
           </Button>
         </div>

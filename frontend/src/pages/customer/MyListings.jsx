@@ -180,7 +180,7 @@ export default function MyListings() {
 
       {/* Withdrawal Modal */}
       {showWd && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-end justify-center" onClick={() => setShowWd(false)}>
+        <div className="fixed inset-0 z-[60] bg-black/40 flex items-end justify-center" onClick={() => setShowWd(false)}>
           <div className="bg-white w-full max-w-[480px] rounded-t-3xl p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <h3 className="text-lg font-black text-slate-900 mb-1">Request Withdrawal</h3>
             <p className="text-xs text-slate-500 mb-4">Available balance: <strong>{formatCurrency(earnings?.available_balance ?? 0)}</strong> · Min ₹100</p>
@@ -220,7 +220,7 @@ function EditModal({ it, onClose, onSaved }) {
   };
   const inp = 'w-full h-11 px-3 border border-slate-200 rounded-xl text-sm mb-3';
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-end justify-center" onClick={onClose}>
+    <div className="fixed inset-0 z-[60] bg-black/40 flex items-end justify-center" onClick={onClose}>
       <div data-testid="my-edit-modal" className="bg-white w-full max-w-[480px] rounded-t-3xl p-5 pb-8" onClick={e => e.stopPropagation()}>
         <h3 className="text-lg font-black text-slate-900 mb-3">Edit listing</h3>
         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Title</label>

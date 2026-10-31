@@ -31,7 +31,7 @@ function ChainCard({ chain }) {
           const from = lvl; lvl += t.people;
           const team = chain.team_by_level.filter(x => x.level >= from && x.level < lvl).reduce((s, x) => s + x.people, 0);
           return <span key={i} className="text-[10px] px-2 py-1 rounded-lg bg-slate-50 border border-slate-100">
-            Tier {i + 1}: L{from}{t.people > 1 ? `–L${from + t.people - 1}` : ''} · {team} people
+            Tier {i + 1}: L{from}{t.people > 1 ? `–L${from + t.people - 1}` : ''} · {team} {team === 1 ? 'person' : 'people'}
           </span>;
         })}
       </div>

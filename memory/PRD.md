@@ -132,3 +132,12 @@ User requested a big multi-area upgrade, delivered phase-by-phase. User does mai
 - **Image fix**: home StoreCard now falls back logo→cover_image→images[0] (root cause was unconfigured Cloudinary — now fixed). CategoryPage already had fallback.
 - Bank account auto-suggest on withdrawal already worked (useSavedPayout); admin Withdrawals already shows account details.
 - **Testing (iteration_5): 100% pass** — 5/5 backend + all frontend data-testid flows. Razorpay NOT exercised (live). Seeded wallet 5000 (+919999999999) and merchant settlement 1940 (+919876543210) for withdrawal tests.
+
+### 2026-06 — Chain Earnings v2 + Branding + My Listings ✅ DONE (testing_agent iteration_6: backend 10/10, frontend pass)
+- **Chain engine** (`earnings.py`): buyer's invite chain, level 1 = inviter, up to 10 levels; 5 tiers × (people, % of bill each). Strict rules: exactly 5 tiers, 1–10 total people, closer tiers pay ≥ deeper, sum(people×%) must equal shop chain %. Shops use default template (auto-scaled) or custom tiers. Unfilled chain share → ledger `chain_unclaimed`. Idempotent per txn. Credited on payment success (wallet + Razorpay verify). Direct referral % still paid separately to level 1.
+- **Routes** (`routes/chain.py`): `/admin/chain/overview`, `PUT /admin/chain/template`, `PUT /admin/stores/{id}/chain`, `/chain/me`, `/branding`, `PUT /admin/branding`. `/admin/stores/{id}/rates` blocks chain % that breaks custom tiers.
+- **Frontend**: `/admin/chain` (AdminChain.jsx), wallet "My Invite Chain" card + labelled bonus credits, Admin Settings app name + logo upload (Cloudinary), `lib/brand.js` (loaded before render; all NAMCOS text/logo dynamic), My Listings Edit modal + modal z-index fix.
+
+## Backlog
+- P1: Chain leaderboard / invite tree view for users
+- P2: Per-tier analytics over time on admin chain page

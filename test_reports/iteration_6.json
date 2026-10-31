@@ -1,0 +1,35 @@
+{
+  "summary": "Tested chain earnings (admin page, default plan validation, per-shop custom/auto tiers, rates guard), chain distribution via pay-with-wallet with a 2-level referral chain, the customer wallet chain card and bonus labels, My Listings (filters, edit, toggle, dashboard), and admin branding (name change shows up everywhere, logo upload through Cloudinary). Backend: 10/10 pytest pass. One real UI bug in My Listings: the bottom nav covered the edit and withdraw modals. I fixed it by raising the z-index. Everything works now.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "MyListings EditModal + Withdrawal modal", "issue": "Modal overlay was z-50, the same as the fixed BottomNav (customer-bottom-nav), so the nav sat on top and blocked the 'Save changes' button (my-edit-save) and the withdraw submit button on mobile. FIXED: overlay changed to z-[60].", "selector": "[data-testid='my-edit-save']", "priority": "HIGH (fixed)"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Customer wallet chain card", "issues": ["Grammar: '1 people' should read '1 person'"]},
+      {"screen": "Admin sidebar header", "issues": ["Brand logo next to the app name is drawn very small (looks like a dot)"]},
+      {"screen": "Admin Chain default plan", "issues": ["'Save default plan' stays enabled when the plan is invalid. The backend still rejects it with 400. The store modal blocks invalid saves on the client with a toast."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_chain_iter6.py", "/app/backend/tests/cleanup_chain_iter6.py", "/app/test_reports/pytest/pytest_iter6.xml"],
+  "action_items": [
+    "Optional: disable chain-template-save while tpl-status shows an error",
+    "Optional: say 'person' instead of 'people' when the count is 1 in the wallet chain card",
+    "Optional: make the admin sidebar logo larger"
+  ],
+  "critical_code_review_comments": [
+    "AdminSettings saveBrand always sends logo_url (the default CDN URL if nothing was uploaded), so it stores the default logo URL in settings. Harmless, but it means the default logo can't be updated later through code alone.",
+    "verify-otp applies referral_code only to new users, so the chain can't be tested on existing test phones. Tests create new users from the unused test phones +911234567890 and +919876543211 and delete them afterwards.",
+    "pytest.ini forces xdist (-n). Run test_chain_iter6.py with -n 1, because the store-chain test temporarily changes Green Mart's chain % and would race with the distribution test."
+  ],
+  "updated_files": ["/app/frontend/src/pages/customer/MyListings.jsx", "/app/backend/tests/test_chain_iter6.py", "/app/backend/tests/cleanup_chain_iter6.py"],
+  "success_rate": {"backend": "100%", "frontend": "100% (after z-index fix)"},
+  "seed_data_creation": "Temporary users +911234567890 (TEST_Mid, referred by +919999999999) and +919876543211 (TEST_Buyer, referred by TEST_Mid). Buyer wallet seeded with ₹1000 in Mongo. Paid ₹1000 at Green Mart (10% discount, 1% referral, 1% chain). Results: TEST_Mid got the ₹10 direct bonus plus the ₹4 L1 chain share, and Test User got the ₹2 L2 chain share. All test data was removed and Test User's wallet reverted to 4500. Default chain template, Green Mart (1%, default plan) and branding (NAMCOS) are restored.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Run: pytest tests/test_chain_iter6.py -n 1, then python tests/cleanup_chain_iter6.py (this deletes the 2 temporary users and reverts the +919999999999 wallet). /api/wallet/balance is the balance endpoint (/api/wallet returns 404). Store modal tier testids: store-tier-people-{i}, store-tier-percent-{i}, store-tier-status. Frontend auth works by putting access_token in localStorage after calling the verify-otp API."
+}

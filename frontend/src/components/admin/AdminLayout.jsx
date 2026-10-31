@@ -66,7 +66,7 @@ export default function AdminLayout({ children }) {
       >
         {/* Logo */}
         <div className="flex items-center gap-3 px-5 h-14 border-b border-white/10 flex-shrink-0">
-          <img src={appLogo()} alt={`${appName()}`} className="h-7 w-7 object-contain" />
+          <img src={appLogo()} alt={`${appName()}`} className="h-9 w-9 rounded-lg object-contain bg-white/10" />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-white leading-tight">{appName()}</p>
             <p className="text-[10px] text-white/40 font-medium uppercase tracking-wider">Admin</p>

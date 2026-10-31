@@ -1,13 +1,13 @@
+import { appName, appLogo } from '@/lib/brand';
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Store, CreditCard, FileText,
-  Banknote, Settings, Menu, X, LogOut, Bell, Grid3X3, Image, Phone, Plus, Layers, Briefcase, UserCog, Megaphone, LifeBuoy
+  Banknote, Settings, Menu, X, LogOut, Bell, Grid3X3, Image, Phone, Plus, Layers, Briefcase, UserCog, Megaphone, LifeBuoy, Network
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ADMIN } from '@/constants/testIds';
 
-const LOGO_URL = "https://customer-assets-gfyr7b9c.emergentagent.net/job_8644c173-92fb-4985-b9f0-9ff438711506/artifacts/73hc9mup_ChatGPT%20Image%20Sep%2028%2C%202026%2C%2010_40_54%20PM.webp";
 
 const NAV_GROUPS = [
   {
@@ -32,6 +32,7 @@ const NAV_GROUPS = [
     items: [
       { to: '/admin/transactions', label: 'Transactions', icon: CreditCard },
       { to: '/admin/withdrawals', label: 'Withdrawals', icon: Banknote },
+      { to: '/admin/chain', label: 'Chain Earnings', icon: Network },
     ]
   },
   {
@@ -65,9 +66,9 @@ export default function AdminLayout({ children }) {
       >
         {/* Logo */}
         <div className="flex items-center gap-3 px-5 h-14 border-b border-white/10 flex-shrink-0">
-          <img src={LOGO_URL} alt="NAMCOS" className="h-7 w-7 object-contain" />
+          <img src={appLogo()} alt={`${appName()}`} className="h-7 w-7 object-contain" />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-white leading-tight">NAMCOS</p>
+            <p className="text-sm font-bold text-white leading-tight">{appName()}</p>
             <p className="text-[10px] text-white/40 font-medium uppercase tracking-wider">Admin</p>
           </div>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-white/40 hover:text-white">
@@ -84,7 +85,7 @@ export default function AdminLayout({ children }) {
               </p>
               <div className="space-y-0.5">
                 {group.items.map(({ to, label, icon: Icon, end }) => (
-                  <NavLink key={to} to={to} end={end}
+                  <NavLink key={to} to={to} end={end} data-testid={`admin-nav-${to.split('/').pop()}`}
                     onClick={() => setSidebarOpen(false)}
                     className={({ isActive }) =>
                       `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${

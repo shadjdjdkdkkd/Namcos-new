@@ -1,3 +1,4 @@
+import { appName } from '@/lib/brand';
 import React, { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -41,7 +42,7 @@ function BannerForm({ initial, onSave, onClose }) {
         </div>
         <div className="p-5 space-y-3">
           {[
-            { key: 'title', label: 'Title *', placeholder: 'Welcome to NAMCOS' },
+            { key: 'title', label: 'Title *', placeholder: `Welcome to ${appName()}` },
             { key: 'subtitle', label: 'Subtitle', placeholder: 'Discover local businesses' },
             { key: 'cta_text', label: 'Button Text', placeholder: 'Explore Now' },
             { key: 'cta_link', label: 'Button Link', placeholder: '/customer/explore' },

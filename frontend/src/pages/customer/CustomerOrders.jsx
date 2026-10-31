@@ -1,3 +1,4 @@
+import { appName } from '@/lib/brand';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, Package, ChevronRight, CheckCircle, Clock, Truck, XCircle } from 'lucide-react';
@@ -93,7 +94,7 @@ function OrderCard({ order }) {
         <span className="text-xs text-slate-400">{formatDate(order.created_at)}</span>
       </div>
       {order.discount_amount > 0 && (
-        <p className="text-xs text-green-600 mt-1">Saved {formatCurrency(order.discount_amount)} with NAMCOS offer</p>
+        <p className="text-xs text-green-600 mt-1">Saved {formatCurrency(order.discount_amount)} with {appName()} offer</p>
       )}
     </Link>
   );

@@ -1,8 +1,9 @@
+import { appName } from '@/lib/brand';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Package, Store, Leaf, Wrench, Tag, Loader2, ToggleLeft, ToggleRight, CheckCircle2,
-  MapPin, Eye, TrendingUp, Banknote, LayoutDashboard, Clock,
+  MapPin, Eye, TrendingUp, Banknote, LayoutDashboard, Clock, Pencil,
 } from 'lucide-react';
 import api, { formatApiError } from '@/utils/api';
 import { formatCurrency, formatDate } from '@/utils/format';
@@ -50,6 +51,7 @@ export default function MyListings() {
   const [wdAmount, setWdAmount] = useState('');
   const { payout, setPayout, method, setMethod } = useSavedPayout();
   const [wdBusy, setWdBusy] = useState(false);
+  const [editing, setEditing] = useState(null);
 
   const load = async () => {
     setLoading(true);
@@ -104,7 +106,7 @@ export default function MyListings() {
       {/* Header */}
       <div className="sticky top-0 z-40 bg-white border-b border-slate-100 shadow-sm px-4 py-3">
         <h1 className="text-lg font-black text-slate-900">My Listings</h1>
-        <p className="text-xs text-slate-500 mt-0.5">Track, edit and manage everything you list on NAMCOS</p>
+        <p className="text-xs text-slate-500 mt-0.5">Track, edit and manage everything you list on {appName()}</p>
       </div>
 
       {/* Earnings Summary */}
@@ -165,7 +167,7 @@ export default function MyListings() {
         </div>
       ) : (
         <div className="px-4 pt-2 space-y-3">
-          {filtered.map(it => <MyItem key={`${it.kind}-${it.id}`} it={it} onToggle={handleToggle} onMarkSold={handleMarkSold}
+          {filtered.map(it => <MyItem key={`${it.kind}-${it.id}`} it={it} onToggle={handleToggle} onMarkSold={handleMarkSold} onEdit={() => setEditing(it)}
             onDashboard={() => navigate(`/customer/my-listings/${it.kind}/${it.id}/dashboard`)} onOpen={() => {
             const routes = { store: `/customer/store/${it.id}`, agriculture: `/customer/agriculture/${it.id}`,
                              service: `/customer/service/${it.id}`, classified: `/customer/classified/${it.id}` };
@@ -173,6 +175,8 @@ export default function MyListings() {
           }} />)}
         </div>
       )}
+
+      {editing && <EditModal it={editing} onClose={() => setEditing(null)} onSaved={() => { setEditing(null); load(); }} />}
 
       {/* Withdrawal Modal */}
       {showWd && (
@@ -199,7 +203,46 @@ export default function MyListings() {
   );
 }
 
-function MyItem({ it, onToggle, onMarkSold, onOpen, onDashboard }) {
+const TITLE_FIELD = { store: 'business_name', agriculture: 'product_name', service: 'service_name', classified: 'title' };
+const PRICE_FIELD = { agriculture: 'price', service: 'starting_price', classified: 'price' };
+
+function EditModal({ it, onClose, onSaved }) {
+  const [f, setF] = useState({ title: it.title || '', price: it.price ?? '', description: it.description || '' });
+  const [busy, setBusy] = useState(false);
+  const save = async () => {
+    if (!f.title.trim()) { toast.error('Title is required'); return; }
+    const body = { [TITLE_FIELD[it.kind]]: f.title.trim(), description: f.description };
+    if (PRICE_FIELD[it.kind] && f.price !== '') body[PRICE_FIELD[it.kind]] = parseFloat(f.price) || 0;
+    setBusy(true);
+    try { await api.put(`/my/listings/${it.kind}/${it.id}`, body); toast.success('Listing updated'); onSaved(); }
+    catch (e) { toast.error(formatApiError(e)); }
+    setBusy(false);
+  };
+  const inp = 'w-full h-11 px-3 border border-slate-200 rounded-xl text-sm mb-3';
+  return (
+    <div className="fixed inset-0 z-50 bg-black/40 flex items-end justify-center" onClick={onClose}>
+      <div data-testid="my-edit-modal" className="bg-white w-full max-w-[480px] rounded-t-3xl p-5 pb-8" onClick={e => e.stopPropagation()}>
+        <h3 className="text-lg font-black text-slate-900 mb-3">Edit listing</h3>
+        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Title</label>
+        <input data-testid="my-edit-title" className={inp} value={f.title} onChange={e => setF({ ...f, title: e.target.value })} />
+        {PRICE_FIELD[it.kind] && <>
+          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Price (₹)</label>
+          <input data-testid="my-edit-price" type="number" className={inp} value={f.price} onChange={e => setF({ ...f, price: e.target.value })} />
+        </>}
+        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Description</label>
+        <textarea data-testid="my-edit-description" rows={3} className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm mb-4" value={f.description} onChange={e => setF({ ...f, description: e.target.value })} />
+        <div className="flex gap-2">
+          <button onClick={onClose} className="flex-1 h-12 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-600">Cancel</button>
+          <button data-testid="my-edit-save" onClick={save} disabled={busy} className="flex-[2] h-12 bg-[#0F4C3A] text-white rounded-2xl text-sm font-bold disabled:opacity-60">
+            {busy ? <Loader2 className="w-4 h-4 animate-spin inline" /> : 'Save changes'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MyItem({ it, onToggle, onMarkSold, onOpen, onDashboard, onEdit }) {
   const cfg = KIND_MAP[it.kind] || KIND_MAP.store;
   const Icon = cfg.icon;
   const badge = STATUS_STYLES[it.status] || 'bg-slate-50 text-slate-500 border-slate-200';
@@ -242,6 +285,12 @@ function MyItem({ it, onToggle, onMarkSold, onOpen, onDashboard }) {
           className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg text-[#0F4C3A] bg-[#0F4C3A]/10 hover:bg-[#0F4C3A]/15">
           <LayoutDashboard className="w-4 h-4" /> Dashboard
         </button>
+        {!isSold && (
+          <button data-testid={`my-edit-${it.id}`} onClick={(e) => { e.stopPropagation(); onEdit(); }}
+            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200">
+            <Pencil className="w-4 h-4" /> Edit
+          </button>
+        )}
         {!isSold && !canToggle && (
           <span data-testid={`my-awaiting-${it.id}`} className="flex items-center gap-1 text-[11px] font-semibold text-amber-700 bg-amber-50 px-2.5 py-1.5 rounded-lg">
             <Clock className="w-3.5 h-3.5" /> {it.status === 'rejected' ? 'Rejected by admin' : it.status === 'suspended' ? 'Suspended by admin' : 'Awaiting admin approval'}

@@ -1,3 +1,4 @@
+import { appName } from '@/lib/brand';
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, CreditCard, Clock, Banknote, ArrowUpRight } from 'lucide-react';
 import api from '@/utils/api';
@@ -74,7 +75,7 @@ export default function MerchantPayments() {
             <table className="w-full min-w-[700px]">
               <thead className="bg-slate-50 border-b border-slate-100">
                 <tr>
-                  {['Transaction ID', 'Customer', 'Bill', 'Customer Discount', 'NAMCOS Fee', 'You Get', 'Status', 'Date'].map(h => (
+                  {['Transaction ID', 'Customer', 'Bill', 'Customer Discount', `${appName()} Fee`, 'You Get', 'Status', 'Date'].map(h => (
                     <th key={h} className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">{h}</th>
                   ))}
                 </tr>

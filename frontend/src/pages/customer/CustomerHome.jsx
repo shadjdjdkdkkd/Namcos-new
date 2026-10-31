@@ -1,3 +1,4 @@
+import { appName } from '@/lib/brand';
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -299,7 +300,7 @@ export default function CustomerHome() {
         <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-4">
           <div className="mb-4">
             <h2 className="text-base font-extrabold text-slate-900">Grow Your Business</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Join thousands of local sellers on NAMCOS</p>
+            <p className="text-xs text-slate-500 mt-0.5">Join thousands of local sellers on {appName()}</p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             {LIST_ITEMS.map(({ icon: Icon, title, desc, color, type }) => (

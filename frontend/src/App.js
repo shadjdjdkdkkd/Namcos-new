@@ -1,3 +1,4 @@
+import { appName } from '@/lib/brand';
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import '@/App.css';
@@ -15,7 +16,7 @@ const AdminLoginPage = React.lazy(() => import('@/pages/admin/AdminLoginPage'));
 
 function RootRedirect() {
   const { user, loading } = useAuth();
-  if (loading) return <PageLoader text="Loading NAMCOS..." />;
+  if (loading) return <PageLoader text={`Loading ${appName()}...`} />;
   if (!user) return <Navigate to="/auth" replace />;
   const roles = user.roles || [];
   if (roles.includes('admin') || roles.includes('super_admin')) return <Navigate to="/admin" replace />;
@@ -35,7 +36,7 @@ function ProtectedRoute({ children, requiredRoles, redirectTo = '/auth' }) {
 
 function AppRoutes() {
   return (
-    <React.Suspense fallback={<PageLoader text="Loading NAMCOS..." />}>
+    <React.Suspense fallback={<PageLoader text={`Loading ${appName()}...`} />}>
       <Routes>
         <Route path="/" element={<RootRedirect />} />
         <Route path="/auth/*" element={<AuthPage />} />

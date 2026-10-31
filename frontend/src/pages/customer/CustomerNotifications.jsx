@@ -1,3 +1,4 @@
+import { appName } from '@/lib/brand';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Bell, CheckCheck, Megaphone, CreditCard, Gift, Wallet as WalletIcon, LifeBuoy } from 'lucide-react';
@@ -49,7 +50,7 @@ export default function CustomerNotifications() {
 
       <div className="p-4">
         {loading ? <SkeletonList count={4} /> : items.length === 0 ? (
-          <EmptyState type="orders" title="No notifications yet" description="Updates and announcements from NAMCOS will appear here" />
+          <EmptyState type="orders" title="No notifications yet" description={`Updates and announcements from ${appName()} will appear here`} />
         ) : (
           <div className="space-y-2.5" data-testid="notif-list">
             {items.map(n => {

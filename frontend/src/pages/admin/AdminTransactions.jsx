@@ -1,3 +1,4 @@
+import { appName } from '@/lib/brand';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   ShoppingBag, Store as StoreIcon, Landmark, Users, Link2, Wallet, Banknote, Filter,
@@ -11,7 +12,7 @@ import Pagination from '@/components/shared/Pagination';
 const GROUPS = [
   { key: 'customer', label: 'Customer Discounts', icon: ShoppingBag, color: '#EA580C' },
   { key: 'merchant', label: 'Merchant Earnings', icon: StoreIcon, color: '#16A34A' },
-  { key: 'namcos', label: 'NAMCOS Earnings', icon: Landmark, color: '#0F4C3A' },
+  { key: 'namcos', label: `${appName()} Earnings`, icon: Landmark, color: '#0F4C3A' },
   { key: 'referral', label: 'Referral Earnings', icon: Users, color: '#2563EB' },
   { key: 'chain', label: 'Chain Earnings', icon: Link2, color: '#7C3AED' },
   { key: 'wallet', label: 'Wallet Top-ups', icon: Wallet, color: '#0891B2' },

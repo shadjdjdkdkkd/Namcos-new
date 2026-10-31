@@ -1,3 +1,4 @@
+import { appName } from '@/lib/brand';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, Store, Clock, Receipt, Wallet, CreditCard } from 'lucide-react';
@@ -86,7 +87,7 @@ export default function OrderDetail() {
           <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Bill Details</p>
           <div className="flex justify-between"><span className="text-slate-500">Subtotal</span><span className="text-slate-800">{formatCurrency(order.subtotal ?? order.gross_amount)}</span></div>
           {order.delivery_fee > 0 && <div className="flex justify-between"><span className="text-slate-500">Delivery</span><span className="text-slate-800">{formatCurrency(order.delivery_fee)}</span></div>}
-          {order.discount_amount > 0 && <div className="flex justify-between text-green-600"><span>NAMCOS discount</span><span>-{formatCurrency(order.discount_amount)}</span></div>}
+          {order.discount_amount > 0 && <div className="flex justify-between text-green-600"><span>{appName()} discount</span><span>-{formatCurrency(order.discount_amount)}</span></div>}
           <div className="flex justify-between border-t border-slate-100 pt-2.5 text-base font-bold"><span className="text-slate-800">Total Paid</span><span className="text-[#0F4C3A]">{formatCurrency(order.final_amount)}</span></div>
         </div>
 

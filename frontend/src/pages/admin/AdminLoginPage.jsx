@@ -1,3 +1,4 @@
+import { appName, appLogo } from '@/lib/brand';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, Eye, EyeOff, Loader2 } from 'lucide-react';
@@ -7,7 +8,6 @@ import { toast } from 'sonner';
 import api, { formatApiError } from '@/utils/api';
 import { useAuth } from '@/contexts/AuthContext';
 
-const LOGO_URL = "https://customer-assets-gfyr7b9c.emergentagent.net/job_8644c173-92fb-4985-b9f0-9ff438711506/artifacts/73hc9mup_ChatGPT%20Image%20Sep%2028%2C%202026%2C%2010_40_54%20PM.webp";
 
 export default function AdminLoginPage() {
   const navigate = useNavigate();
@@ -43,9 +43,9 @@ export default function AdminLoginPage() {
         <div className="flex flex-col items-center mb-8">
           <div className="relative mb-4">
             <div className="absolute inset-0 bg-[#0F4C3A]/40 rounded-2xl blur-xl scale-125" />
-            <img src={LOGO_URL} alt="NAMCOS" className="relative h-20 w-20 object-contain" />
+            <img src={appLogo()} alt={`${appName()}`} className="relative h-20 w-20 object-contain" />
           </div>
-          <h1 className="text-2xl font-bold text-white">NAMCOS</h1>
+          <h1 className="text-2xl font-bold text-white">{appName()}</h1>
           <p className="text-xs text-white/40 mt-1 uppercase tracking-widest font-medium">Admin Panel</p>
         </div>
 

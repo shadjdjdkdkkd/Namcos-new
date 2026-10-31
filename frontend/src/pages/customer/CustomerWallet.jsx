@@ -1,5 +1,6 @@
+import { appName } from '@/lib/brand';
 import React, { useState, useEffect } from 'react';
-import { Wallet, TrendingUp, ArrowDownLeft, ArrowUpRight, Plus, X, Loader2 } from 'lucide-react';
+import { Wallet, TrendingUp, ArrowDownLeft, ArrowUpRight, Plus, X, Loader2, Network } from 'lucide-react';
 import api from '@/utils/api';
 import { formatCurrency, formatDate, getStatusColor, getStatusLabel } from '@/utils/format';
 import { SkeletonList } from '@/components/shared/SkeletonCard';
@@ -9,6 +10,35 @@ import { topupWalletWithRazorpay } from '@/utils/razorpay';
 import PayoutFields, { useSavedPayout, validatePayout, payoutPayload } from '@/components/shared/PayoutFields';
 
 const ADD_AMOUNTS = [100, 200, 500, 1000, 2000];
+const BONUS = { referral: 'Direct Invite Bonus', chain: 'Chain Bonus' };
+
+function ChainCard({ chain }) {
+  let lvl = 1;
+  return (
+    <div data-testid="wallet-chain-card" className="mx-4 mb-5 bg-white rounded-2xl border border-amber-100 shadow-sm p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <Network className="w-4 h-4 text-amber-600" />
+        <h2 className="text-sm font-bold text-slate-800">My Invite Chain</h2>
+      </div>
+      <div className="grid grid-cols-3 gap-2 text-center mb-3">
+        <div className="bg-amber-50 rounded-xl py-2"><p className="text-[10px] text-slate-500">Team</p><p data-testid="chain-team-total" className="text-sm font-bold">{chain.team_total}</p></div>
+        <div className="bg-amber-50 rounded-xl py-2"><p className="text-[10px] text-slate-500">Direct bonus</p><p data-testid="chain-direct-bonus" className="text-sm font-bold">{formatCurrency(chain.direct_bonus)}</p></div>
+        <div className="bg-amber-50 rounded-xl py-2"><p className="text-[10px] text-slate-500">Chain bonus</p><p data-testid="chain-chain-bonus" className="text-sm font-bold">{formatCurrency(chain.chain_bonus)}</p></div>
+      </div>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">How you earn</p>
+      <div className="flex flex-wrap gap-1.5 mb-2">
+        {chain.plan.filter(t => t.people > 0).map((t, i) => {
+          const from = lvl; lvl += t.people;
+          const team = chain.team_by_level.filter(x => x.level >= from && x.level < lvl).reduce((s, x) => s + x.people, 0);
+          return <span key={i} className="text-[10px] px-2 py-1 rounded-lg bg-slate-50 border border-slate-100">
+            Tier {i + 1}: L{from}{t.people > 1 ? `–L${from + t.people - 1}` : ''} · {team} people
+          </span>;
+        })}
+      </div>
+      <p className="text-[11px] text-slate-500">Invite friends — you earn every time they (and the people they invite, up to 10 levels) pay at a shop. Closer levels earn more.</p>
+    </div>
+  );
+}
 
 export default function CustomerWallet() {
   const [payments, setPayments] = useState([]);
@@ -25,6 +55,7 @@ export default function CustomerWallet() {
   const [wd, setWd] = useState({ amount: '' });
   const { payout, setPayout, method, setMethod } = useSavedPayout();
   const [withdrawals, setWithdrawals] = useState([]);
+  const [chain, setChain] = useState(null);
 
   const refresh = () =>
     Promise.allSettled([
@@ -63,7 +94,7 @@ export default function CustomerWallet() {
     } finally { setProcessing(false); }
   };
 
-  useEffect(() => { refresh().finally(() => setLoading(false)); }, []);
+  useEffect(() => { refresh().finally(() => setLoading(false)); api.get('/chain/me').then(r => setChain(r.data)).catch(() => {}); }, []);
 
   const handleAddMoney = async () => {
     const amt = customAmount ? parseFloat(customAmount) : selectedAmount;
@@ -94,7 +125,7 @@ export default function CustomerWallet() {
           <Wallet className="w-4 h-4 text-white/50" />
         </div>
         <p data-testid="wallet-balance" className="text-4xl font-bold text-white mb-1">{formatCurrency(balance)}</p>
-        <p className="text-xs text-white/60">NAMCOS Wallet Balance</p>
+        <p className="text-xs text-white/60">{appName()} Wallet Balance</p>
 
         <button
           data-testid="add-money-btn"
@@ -128,9 +159,11 @@ export default function CustomerWallet() {
           </div>
           <p className="text-xs text-slate-500">Total Saved</p>
           <p className="text-lg font-bold text-green-600 mt-0.5">{formatCurrency(totalSaved)}</p>
-          <p className="text-[9px] text-slate-400">via NAMCOS offers</p>
+          <p className="text-[9px] text-slate-400">via {appName()} offers</p>
         </div>
       </div>
+
+      {chain && <ChainCard chain={chain} />}
 
       {/* Transaction History */}
       <div className="px-4">
@@ -149,11 +182,13 @@ export default function CustomerWallet() {
                 <div key={item.key} data-testid={`txn-${item.key}`} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-emerald-50">
-                        <ArrowUpRight className="w-4 h-4 text-emerald-600" />
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${BONUS[item.source] ? 'bg-amber-50' : 'bg-emerald-50'}`}>
+                        {BONUS[item.source] ? <Network className="w-4 h-4 text-amber-600" /> : <ArrowUpRight className="w-4 h-4 text-emerald-600" />}
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-slate-800">Money Added</p>
+                        <p className="text-sm font-semibold text-slate-800" data-testid={`txn-title-${item.key}`}>
+                          {item.source === 'chain' ? `Chain Bonus · Level ${item.level || '?'}` : BONUS[item.source] || 'Money Added'}
+                        </p>
                         <p className="text-[10px] text-slate-400">{item.note || 'Wallet top-up'}</p>
                       </div>
                     </div>
@@ -187,7 +222,7 @@ export default function CustomerWallet() {
                     </div>
                   </div>
                   {item.discount_amount > 0 && (
-                    <p className="text-xs text-green-600 mt-2">Saved {formatCurrency(item.discount_amount)} with NAMCOS</p>
+                    <p className="text-xs text-green-600 mt-2">Saved {formatCurrency(item.discount_amount)} with {appName()}</p>
                   )}
                   <p className="text-xs text-slate-400 mt-1.5">{formatDate(item.date)}</p>
                 </div>

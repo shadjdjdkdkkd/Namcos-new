@@ -1,3 +1,4 @@
+import { appName } from '@/lib/brand';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, CheckCircle, XCircle, Clock, MapPin, Star, Pencil, BarChart3, Loader2, Landmark } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -185,7 +186,7 @@ export default function AdminStores() {
                         { f: 'discount_percent', label: 'Customer', color: '#F6B400' },
                         { f: 'referral_percent', label: 'Referral', color: '#2563EB' },
                         { f: 'chain_percent', label: 'Chain', color: '#7C3AED' },
-                        { f: 'namcos_percent', label: 'NAMCOS Fee', color: '#0F4C3A' },
+                        { f: 'namcos_percent', label: `${appName()} Fee`, color: '#0F4C3A' },
                       ].map(({ f, label, color }) => (
                         <label key={f} className="flex items-center gap-1.5">
                           <span className="text-[11px] font-semibold" style={{ color }}>{label}</span>
@@ -267,7 +268,7 @@ export default function AdminStores() {
                 <div className="bg-slate-50 rounded-xl p-3"><p className="text-xs text-slate-500">Total Transactions</p><p className="text-xl font-bold text-slate-900">{txnData.total_transactions}</p></div>
                 <div className="bg-slate-50 rounded-xl p-3"><p className="text-xs text-slate-500">Total Amount</p><p className="text-xl font-bold text-slate-900">{formatCurrency(txnData.total_amount)}</p></div>
                 <div className="bg-emerald-50 rounded-xl p-3"><p className="text-xs text-emerald-700">Store Revenue (after deductions)</p><p className="text-xl font-bold text-[#0F4C3A]">{formatCurrency(txnData.merchant_revenue_after_deduction)}</p></div>
-                <div className="bg-slate-50 rounded-xl p-3"><p className="text-xs text-slate-500">NAMCOS Earning</p><p className="text-lg font-bold text-slate-700">{formatCurrency(txnData.namcos_earning)}</p></div>
+                <div className="bg-slate-50 rounded-xl p-3"><p className="text-xs text-slate-500">{appName()} Earning</p><p className="text-lg font-bold text-slate-700">{formatCurrency(txnData.namcos_earning)}</p></div>
                 <div className="bg-amber-50 rounded-xl p-3 col-span-2"><p className="text-xs text-amber-700">Customer Discounts Given</p><p className="text-lg font-bold text-amber-700">{formatCurrency(txnData.customer_discount)}</p></div>
               </div>
             )}

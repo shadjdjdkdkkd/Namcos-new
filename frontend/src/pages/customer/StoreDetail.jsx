@@ -1,3 +1,4 @@
+import { appName } from '@/lib/brand';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -187,7 +188,7 @@ export default function StoreDetail() {
             <p className="text-xs font-semibold mt-0.5" style={{ color: accent }}>{store.business_type || store.category}</p>
             {discountPct > 0 && (
               <span data-testid="store-discount-badge" className="inline-flex items-center gap-1 mt-1.5 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm">
-                {discountPct}% OFF with NAMCOS
+                {discountPct}% OFF with {appName()}
               </span>
             )}
           </div>
@@ -236,7 +237,7 @@ export default function StoreDetail() {
             {!claimed ? (
               <button data-testid="claim-discount-btn" onClick={() => setClaimed(true)}
                 className="w-full flex items-center justify-between">
-                <span className="text-sm font-bold text-amber-700">🎉 Claim {discountPct}% NAMCOS discount</span>
+                <span className="text-sm font-bold text-amber-700">🎉 Claim {discountPct}% {appName()} discount</span>
                 <span className="text-xs font-semibold text-amber-600 bg-white px-2.5 py-1 rounded-full border border-amber-200">Save {formatCurrency(Math.round(amtNum * discountPct / 100))}</span>
               </button>
             ) : (

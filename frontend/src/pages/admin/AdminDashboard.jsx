@@ -1,3 +1,4 @@
+import { appName } from '@/lib/brand';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Users, Store as StoreIcon, CreditCard, TrendingUp, Clock, AlertCircle,
@@ -205,9 +206,9 @@ export default function AdminDashboard() {
           <MoneyCard label="Total Transactions" value={metrics?.total_transactions ?? 0} icon={CreditCard} color="#2563EB" loading={analyticsLoading}
             info="Number of captured payments in the selected range." />
           <MoneyCard label="Merchant Revenue" value={formatCurrency(metrics?.merchant_revenue ?? 0)} icon={StoreIcon} color="#16A34A" loading={analyticsLoading}
-            info="Net amount merchants receive after all deductions (customer discount, referral, chain, NAMCOS fee)." />
-          <MoneyCard label="NAMCOS Revenue" value={formatCurrency(metrics?.namcos_revenue ?? 0)} icon={Landmark} color="#0F4C3A" loading={analyticsLoading}
-            info="NAMCOS platform earnings (the per-store NAMCOS fee %)." />
+            info={`Net amount merchants receive after all deductions (customer discount, referral, chain, ${appName()} fee).`} />
+          <MoneyCard label={`${appName()} Revenue`} value={formatCurrency(metrics?.namcos_revenue ?? 0)} icon={Landmark} color="#0F4C3A" loading={analyticsLoading}
+            info={`${appName()} platform earnings (the per-store ${appName()} fee %).`} />
           <MoneyCard label="User Referral Revenue" value={formatCurrency(metrics?.referral_revenue ?? 0)} icon={Users2} color="#2563EB" loading={analyticsLoading}
             info="Total direct referral bonuses paid to referrers when their referred users purchased." />
           <MoneyCard label="Chain Total Revenue" value={formatCurrency(metrics?.chain_revenue ?? 0)} icon={Link2} color="#7C3AED" loading={analyticsLoading}
@@ -215,7 +216,7 @@ export default function AdminDashboard() {
           <MoneyCard label="Customer Discounts" value={formatCurrency(metrics?.customer_discount ?? 0)} icon={CreditCard} color="#EA580C" loading={analyticsLoading}
             info="Total discounts given to customers across all purchases." />
           <MoneyCard label="Total % Revenue" value={formatCurrency(metrics?.total_percentage_revenue ?? 0)} icon={TrendingUp} color="#DB2777" loading={analyticsLoading}
-            info="Sum of all percentage-based allocations: customer discount + referral + chain + NAMCOS fee." />
+            info={`Sum of all percentage-based allocations: customer discount + referral + chain + ${appName()} fee.`} />
           <MoneyCard label="Merchant Valid Balance (DMB)" value={formatCurrency(metrics?.merchant_valid_balance ?? 0)} icon={StoreIcon} color="#0F4C3A" loading={analyticsLoading}
             info="DMB = Due Merchant Balance. Total merchant settlement balance that is available and still withdrawable (i.e. valid balance remaining after withdrawals). All-time figure." />
           <MoneyCard label="User Wallet Balance" value={formatCurrency(metrics?.user_wallet_balance ?? 0)} icon={Wallet} color="#0891B2" loading={analyticsLoading}

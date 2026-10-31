@@ -1,3 +1,4 @@
+import { appName, appLogo } from '@/lib/brand';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Loader2, ChevronLeft, Shield } from 'lucide-react';
@@ -8,7 +9,6 @@ import api, { formatApiError } from '@/utils/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { AUTH } from '@/constants/testIds';
 
-const LOGO_URL = "https://customer-assets-gfyr7b9c.emergentagent.net/job_8644c173-92fb-4985-b9f0-9ff438711506/artifacts/73hc9mup_ChatGPT%20Image%20Sep%2028%2C%202026%2C%2010_40_54%20PM.webp";
 
 // SVG scene: gentle rolling tea-plantation hills for the bottom half
 function TeaFieldScene() {
@@ -129,7 +129,7 @@ export default function AuthPage() {
     try {
       const { data } = await api.put('/auth/profile', { name: name.trim() });
       login(data);
-      toast.success('Welcome to NAMCOS!');
+      toast.success(`Welcome to ${appName()}!`);
       navigate('/customer');
     } catch (e) { toast.error(formatApiError(e)); }
     finally { setLoading(false); }
@@ -152,15 +152,15 @@ export default function AuthPage() {
         <div className="relative mb-6">
           <div className="absolute inset-0 -m-6 rounded-full bg-emerald-300/25 blur-3xl" />
           <img
-            src={LOGO_URL}
-            alt="NAMCOS"
+            src={appLogo()}
+            alt={`${appName()}`}
             className="relative h-28 w-28 object-cover rounded-full drop-shadow-2xl bg-white ring-2 ring-white/40"
           />
         </div>
 
         {/* Brand title */}
         <h1 className="text-white text-5xl font-black tracking-tight text-center leading-none drop-shadow-md">
-          NAMCOS
+          {appName()}
         </h1>
         <p className="text-emerald-100/90 text-sm font-medium mt-2 tracking-wide">
           Local Commerce Ecosystem
@@ -302,7 +302,7 @@ export default function AuthPage() {
             <Shield className="w-3 h-3 text-white/80" />
           </div>
           <p className="text-center text-[11px] text-white/70 font-medium max-w-[280px]">
-            By continuing, you agree to NAMCOS{' '}
+            By continuing, you agree to {appName()}{' '}
             <span className="underline underline-offset-2">Terms &amp; Privacy Policy</span>
           </p>
         </div>

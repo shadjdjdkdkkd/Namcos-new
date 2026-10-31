@@ -604,6 +604,14 @@ async def update_store_rates(store_id: str, body: StoreRates, request: Request):
     updates = {k: float(v) for k, v in body.dict().items() if v is not None}
     if not updates:
         raise HTTPException(400, "No percentages provided")
+    if "chain_percent" in updates:
+        from earnings import validate_tiers
+        try:
+            st = await db.stores.find_one({"_id": ObjectId(store_id)}, {"chain_tiers": 1})
+        except Exception:
+            st = None
+        if st and st.get("chain_tiers") and validate_tiers(st["chain_tiers"], updates["chain_percent"]):
+            raise HTTPException(400, "This shop has a custom chain plan — change its chain % from the Chain Earnings page")
     try:
         res = await db.stores.update_one({"_id": ObjectId(store_id)}, {"$set": updates})
     except Exception:

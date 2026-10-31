@@ -1,3 +1,4 @@
+import { appName } from '@/lib/brand';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, ShoppingBag, TrendingUp, Banknote, Percent, Package, Eye, Loader2, ExternalLink, Clock } from 'lucide-react';
@@ -81,7 +82,7 @@ export default function ListingDashboard() {
                 <Stat label="Total Orders" value={data.total_orders} icon={ShoppingBag} color="#0F4C3A" testId="ld-orders" />
                 <Stat label="Gross Sales" value={formatCurrency(data.gross_sales)} icon={TrendingUp} color="#16A34A" testId="ld-gross" />
                 <Stat label="Net Earnings" value={formatCurrency(data.net_earnings)} icon={Banknote} color="#2563EB" testId="ld-net" />
-                <Stat label="NAMCOS Fee" value={formatCurrency(data.namcos_fee)} icon={Percent} color="#7C3AED" testId="ld-fee" />
+                <Stat label={`${appName()} Fee`} value={formatCurrency(data.namcos_fee)} icon={Percent} color="#7C3AED" testId="ld-fee" />
                 <Stat label="Customer Discounts" value={formatCurrency(data.customer_discount)} icon={Percent} color="#F59E0B" testId="ld-discount" />
                 <Stat label="Products" value={data.products_count} icon={Package} color="#0891B2" testId="ld-products" />
               </div>
@@ -91,7 +92,7 @@ export default function ListingDashboard() {
                   <span className="px-2 py-1 rounded-lg bg-amber-50 text-amber-700">Customer {data.rates.discount_percent || 0}%</span>
                   <span className="px-2 py-1 rounded-lg bg-blue-50 text-blue-700">Referral {data.rates.referral_percent || 0}%</span>
                   <span className="px-2 py-1 rounded-lg bg-purple-50 text-purple-700">Chain {data.rates.chain_percent || 0}%</span>
-                  <span className="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700">NAMCOS {data.rates.namcos_percent || 0}%</span>
+                  <span className="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700">{appName()} {data.rates.namcos_percent || 0}%</span>
                 </div>
               </div>
               <div className="bg-white rounded-2xl border border-slate-100 p-4" data-testid="ld-recent-payments">

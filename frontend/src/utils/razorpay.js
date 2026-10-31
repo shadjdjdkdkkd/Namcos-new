@@ -1,3 +1,4 @@
+import { appName } from '@/lib/brand';
 /**
  * Razorpay checkout launcher. Loads the SDK on demand, then opens the checkout.
  * Resolves with the verified backend response on success, rejects on cancel/failure.
@@ -33,7 +34,7 @@ export async function payAtStoreWithRazorpay({ storeId, amount, notes }) {
       key: order.key_id,
       amount: order.amount,
       currency: order.currency,
-      name: 'NAMCOS',
+      name: `${appName()}`,
       description: `Pay at ${order.store_name}`,
       order_id: order.razorpay_order_id,
       prefill: {
@@ -74,7 +75,7 @@ export async function topupWalletWithRazorpay({ amount }) {
       key: order.key_id,
       amount: order.amount,
       currency: order.currency,
-      name: 'NAMCOS Wallet',
+      name: `${appName()} Wallet`,
       description: `Add ₹${amount} to your wallet`,
       order_id: order.razorpay_order_id,
       prefill: {

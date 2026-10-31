@@ -1,3 +1,4 @@
+import { appName, appLogo } from '@/lib/brand';
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
@@ -7,7 +8,6 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { MERCHANT } from '@/constants/testIds';
 
-const LOGO_URL = "https://customer-assets-gfyr7b9c.emergentagent.net/job_8644c173-92fb-4985-b9f0-9ff438711506/artifacts/73hc9mup_ChatGPT%20Image%20Sep%2028%2C%202026%2C%2010_40_54%20PM.webp";
 
 const NAV_ITEMS = [
   { to: '/merchant', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -29,9 +29,9 @@ export default function MerchantLayout({ children }) {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center gap-2.5 px-5 py-5 border-b border-white/10">
-            <img src={LOGO_URL} alt="NAMCOS" className="h-8 w-8 object-contain" />
+            <img src={appLogo()} alt={`${appName()}`} className="h-8 w-8 object-contain" />
             <div>
-              <p className="text-sm font-bold text-white">NAMCOS</p>
+              <p className="text-sm font-bold text-white">{appName()}</p>
               <p className="text-[10px] text-white/50">Merchant Portal</p>
             </div>
             <button onClick={() => setSidebarOpen(false)} className="ml-auto lg:hidden text-white/50">

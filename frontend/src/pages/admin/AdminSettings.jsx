@@ -1,5 +1,6 @@
+import { appName, appLogo } from '@/lib/brand';
 import React, { useEffect, useState } from 'react';
-import { Settings, Percent, Shield, Save, Phone, Mail, Key, Loader2 } from 'lucide-react';
+import { Settings, Percent, Shield, Save, Phone, Mail, Key, Loader2, Palette, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -13,6 +14,29 @@ export default function AdminSettings() {
   const [savingPlat, setSavingPlat] = useState(false);
   const [savingContact, setSavingContact] = useState(false);
   const [savingPw, setSavingPw] = useState(false);
+  const [brand, setBrand] = useState({ app_name: appName(), logo_url: appLogo() });
+  const [savingBrand, setSavingBrand] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  const uploadLogo = async (file) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const form = new FormData(); form.append('file', file);
+      const { data } = await api.post('/uploads', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+      setBrand(b => ({ ...b, logo_url: data.url }));
+      toast.success('Logo uploaded — click Save branding');
+    } catch (e) { toast.error(formatApiError(e)); }
+    setUploading(false);
+  };
+  const saveBrand = async () => {
+    setSavingBrand(true);
+    try {
+      await api.put('/admin/branding', brand);
+      toast.success('Branding saved — refreshing');
+      setTimeout(() => window.location.reload(), 600);
+    } catch (e) { toast.error(formatApiError(e)); setSavingBrand(false); }
+  };
 
   useEffect(() => {
     api.get('/admin/settings').then(r => setPlatform(p => ({ ...p, ...r.data }))).catch(() => {});
@@ -54,10 +78,27 @@ export default function AdminSettings() {
         <p className="text-sm text-slate-500 mt-0.5">Platform, contact info, and account security</p>
       </div>
 
+      <Section title="App name & logo" icon={Palette}>
+        <div className="flex items-center gap-4">
+          <img data-testid="brand-logo-preview" src={brand.logo_url} alt="logo" className="w-16 h-16 rounded-xl object-contain bg-slate-50 border border-slate-200" />
+          <label className="inline-flex items-center gap-2 h-10 px-4 rounded-xl border border-slate-200 text-sm font-semibold cursor-pointer hover:bg-slate-50">
+            {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />} Upload logo
+            <input data-testid="brand-logo-input" type="file" accept="image/*" className="hidden" onChange={e => uploadLogo(e.target.files?.[0])} />
+          </label>
+        </div>
+        <Field label="App name" value={brand.app_name} onChange={v => setBrand(b => ({ ...b, app_name: v }))} testId="brand-name-input" />
+        <div className="pt-2">
+          <Button data-testid="brand-save-btn" onClick={saveBrand} disabled={savingBrand || uploading} className="bg-[#0F4C3A] hover:bg-[#0a3829] text-white rounded-xl">
+            {savingBrand ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+            Save branding
+          </Button>
+        </div>
+      </Section>
+
       {/* Fees */}
       <Section title="Fees & Withdrawal" icon={Percent}>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="NAMCOS Earning (%)" type="number" step="0.1"
+          <Field label={`${appName()} Earning (%)`} type="number" step="0.1"
             value={platform.namcos_earning_percent}
             onChange={v => setPlatform(p => ({ ...p, namcos_earning_percent: parseFloat(v) || 0 }))} />
           <Field label="Referral Reward (%)" type="number" step="0.1"

@@ -23,6 +23,7 @@ from routes.admin_ext import admin_ext_router
 from routes.mylistings import mylistings_router
 from routes.extra import extra_router
 from routes.payout import payout_router
+from routes.chain import chain_router
 from storage import init_storage
 
 ROOT_DIR = Path(__file__).parent
@@ -34,7 +35,7 @@ app = FastAPI(title="NAMCOS API v1.0", description="NAMCOS Local Commerce Platfo
 for router in [auth_router, stores_router, products_router, orders_router,
                payments_router, listings_router, admin_router, admin_ext_router,
                search_router, common_router, uploads_router, mylistings_router,
-               extra_router, payout_router]:
+               extra_router, payout_router, chain_router]:
     app.include_router(router, prefix="/api")
 
 app.add_middleware(

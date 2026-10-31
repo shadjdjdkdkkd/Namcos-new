@@ -1,3 +1,4 @@
+import { appName } from '@/lib/brand';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, MapPin, Phone, Settings, Store, Leaf, Wrench, Tag, ChevronRight, LogOut, Bell, HelpCircle, Gift, Copy, Share2, Link2, Users as UsersIcon } from 'lucide-react';
@@ -24,10 +25,10 @@ export default function CustomerProfile() {
 
   const shareInvite = async () => {
     const code = ref?.referral_code || '';
-    const msg = `Join me on NAMCOS — shop local & save! Use my referral code ${code} when you sign up. https://namcos.app`;
+    const msg = `Join me on ${appName()} — shop local & save! Use my referral code ${code} when you sign up. https://namcos.app`;
     try {
       if (navigator.share) {
-        await navigator.share({ title: 'Join NAMCOS', text: msg });
+        await navigator.share({ title: `Join ${appName()}`, text: msg });
       } else {
         navigator.clipboard?.writeText(msg);
         toast.success('Invite message copied — share it anywhere!');

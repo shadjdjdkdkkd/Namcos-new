@@ -3,7 +3,112 @@ from datetime import datetime, timezone
 from bson import ObjectId
 from database import db
 
-MAX_CHAIN_LEVELS = 5
+MAX_CHAIN_LEVELS = 10
+TIER_COUNT = 5
+# Default template (totals 10%): closer levels earn more per person
+DEFAULT_TIERS = [{"people": 1, "percent": 4.0}, {"people": 1, "percent": 2.0},
+                 {"people": 2, "percent": 1.0}, {"people": 2, "percent": 0.5},
+                 {"people": 4, "percent": 0.25}]
+
+
+def tiers_total(tiers):
+    return round(sum(int(t["people"]) * float(t["percent"]) for t in tiers), 4)
+
+
+def validate_tiers(tiers, chain_pct=None):
+    """Strict rules. Returns an error string or None."""
+    if not isinstance(tiers, list) or len(tiers) != TIER_COUNT:
+        return f"Exactly {TIER_COUNT} tiers are required"
+    levels = 0
+    prev = None
+    for i, t in enumerate(tiers, start=1):
+        try:
+            people, pct = int(t["people"]), float(t["percent"])
+        except Exception:
+            return f"Tier {i}: people and percent are required"
+        if people < 0 or pct < 0:
+            return f"Tier {i}: values cannot be negative"
+        if people == 0 and pct > 0:
+            return f"Tier {i}: percent must be 0 when people is 0"
+        if people > 0 and pct <= 0:
+            return f"Tier {i}: percent must be above 0"
+        if people > 0:
+            if prev is not None and pct > prev + 1e-9:
+                return f"Tier {i}: percent per person cannot be higher than the tier above it"
+            prev = pct
+        levels += people
+    if levels < 1 or levels > MAX_CHAIN_LEVELS:
+        return f"Total people across tiers must be between 1 and {MAX_CHAIN_LEVELS} (got {levels})"
+    if chain_pct is not None and abs(tiers_total(tiers) - float(chain_pct)) > 0.001:
+        return f"Tiers add up to {tiers_total(tiers)}% but the shop's chain allocation is {float(chain_pct)}%"
+    return None
+
+
+def clean_tiers(tiers):
+    return [{"people": int(t["people"]), "percent": round(float(t["percent"]), 4)} for t in tiers]
+
+
+async def get_template():
+    s = await db.settings.find_one({"key": "chain"}) or {}
+    return s.get("tiers") or DEFAULT_TIERS
+
+
+def scale_tiers(template, chain_pct):
+    total = tiers_total(template)
+    f = (float(chain_pct) / total) if total else 0
+    return [{"people": t["people"], "percent": round(t["percent"] * f, 6)} for t in template]
+
+
+async def tiers_for_store(store):
+    if store.get("chain_tiers"):
+        return store["chain_tiers"]
+    return scale_tiers(await get_template(), store_rates(store)["chain_pct"])
+
+
+def level_map(tiers):
+    out = []
+    for ti, t in enumerate(tiers, start=1):
+        out += [(ti, float(t["percent"]))] * int(t["people"])
+    return out[:MAX_CHAIN_LEVELS]
+
+
+async def _distribute_chain(buyer, bd, ref_id, now, store_name, sid, tiers):
+    levels = level_map(tiers)
+    gross = bd["gross_amount"]
+    buyer_name = buyer.get("name")
+    paid = 0.0
+    current = buyer
+    for lvl, (tier, pct) in enumerate(levels, start=1):
+        up = await _find_user(current.get("referred_by"))
+        if not up:
+            break
+        current = up
+        amt = round(gross * pct / 100, 2)
+        if amt <= 0:
+            continue
+        paid += amt
+        note = f"Chain bonus L{lvl} (Tier {tier}) · {buyer_name} paid at {store_name}"
+        await _credit_wallet(up["id"], amt, "chain", ref_id, note, now, total_field="total_chain_earnings",
+                             extra={"store_name": store_name, "store_id": sid, "buyer_name": buyer_name,
+                                    "level": lvl, "tier": tier, "percent": pct})
+        await db.referral_earnings.insert_one({
+            "referrer_id": up["id"], "buyer_id": buyer.get("id"), "buyer_name": buyer_name,
+            "amount": amt, "percent": pct, "net_paid": bd["net_paid"], "gross_amount": gross,
+            "kind": "chain", "level": lvl, "tier": tier, "store_id": sid, "store_name": store_name,
+            "reference_id": ref_id, "created_at": now})
+        await write_ledger("chain", "chain_earning", amt, now, reference_id=ref_id,
+                           user_id=up["id"], user_name=up.get("name"), store_id=sid,
+                           store_name=store_name, buyer_id=buyer.get("id"), buyer_name=buyer_name,
+                           percent=pct, note=f"Chain L{lvl} / Tier {tier} from {buyer_name}")
+        await db.notifications.insert_one({
+            "user_id": up["id"], "title": "Chain Bonus",
+            "message": f"You earned ₹{amt:.2f} (level {lvl}) when {buyer_name} paid at {store_name}",
+            "type": "referral", "is_read": False, "created_at": now})
+    unclaimed = round(bd["chain_amount"] - paid, 2)
+    if unclaimed > 0:
+        await write_ledger("namcos", "chain_unclaimed", unclaimed, now, reference_id=ref_id,
+                           store_id=sid, store_name=store_name, buyer_id=buyer.get("id"),
+                           buyer_name=buyer_name, note="Unclaimed chain share (chain shorter than plan)")
 
 
 async def get_rates():
@@ -84,7 +189,7 @@ async def write_ledger(txn_group: str, txn_type: str, amount: float, now: str,
     })
 
 
-async def _credit_wallet(user_id, amt, source, ref_id, note, now, total_field=None):
+async def _credit_wallet(user_id, amt, source, ref_id, note, now, total_field=None, extra=None):
     inc = {"balance": amt}
     if total_field:
         inc[total_field] = amt
@@ -93,7 +198,7 @@ async def _credit_wallet(user_id, amt, source, ref_id, note, now, total_field=No
         upsert=True)
     await db.wallet_transactions.insert_one({
         "user_id": user_id, "type": "credit", "source": source,
-        "amount": round(amt, 2), "reference_id": ref_id, "note": note, "created_at": now})
+        "amount": round(amt, 2), "reference_id": ref_id, "note": note, "created_at": now, **(extra or {})})
 
 
 async def _find_user(uid):
@@ -114,6 +219,8 @@ async def apply_purchase_earnings(store: dict, buyer_id: str, gross: float, txn_
     Returns the full breakdown dict."""
     rates = store_rates(store)
     bd = compute_full_breakdown(gross, store, rates)
+    if await db.transactions.find_one({"reference_id": txn_id, "txn_type": "merchant_earning"}):
+        return bd
     if net_paid is not None:
         bd["net_paid"] = round(net_paid, 2)
 
@@ -140,11 +247,12 @@ async def apply_purchase_earnings(store: dict, buyer_id: str, gross: float, txn_
                            buyer_id=buyer_id, buyer_name=buyer_name, percent=bd["namcos_percent"],
                            note="NAMCOS platform earning")
 
-    await _credit_referral_chain(buyer, bd, txn_id, now, store_name, sid)
+    tiers = await tiers_for_store(store)
+    await _credit_referral_chain(buyer, bd, txn_id, now, store_name, sid, tiers)
     return bd
 
 
-async def _credit_referral_chain(buyer, bd, ref_id, now, store_name, sid):
+async def _credit_referral_chain(buyer, bd, ref_id, now, store_name, sid, store_tiers_cache=None):
     if not buyer:
         return
     direct_id = buyer.get("referred_by")
@@ -154,8 +262,9 @@ async def _credit_referral_chain(buyer, bd, ref_id, now, store_name, sid):
     if bd["referral_amount"] > 0 and direct_id:
         amt = bd["referral_amount"]
         await _credit_wallet(direct_id, amt, "referral", ref_id,
-                             f"Referral reward from {buyer_name}", now,
-                             total_field="total_referral_earnings")
+                             f"Direct invite bonus · {buyer_name} paid at {store_name}", now,
+                             total_field="total_referral_earnings",
+                             extra={"store_name": store_name, "store_id": sid, "buyer_name": buyer_name, "level": 1})
         direct = await _find_user(direct_id)
         await db.referral_earnings.insert_one({
             "referrer_id": direct_id, "buyer_id": buyer.get("id"), "buyer_name": buyer_name,
@@ -171,39 +280,9 @@ async def _credit_referral_chain(buyer, bd, ref_id, now, store_name, sid):
             "message": f"You earned ₹{amt:.2f} from {buyer_name}'s purchase",
             "type": "referral", "is_read": False, "created_at": now})
 
-    # Chain reward — distributed to uplines ABOVE the direct referrer, decreasing split
-    if bd["chain_amount"] > 0 and direct_id:
-        uplines = []
-        current = await _find_user(direct_id)
-        while current and current.get("referred_by") and len(uplines) < MAX_CHAIN_LEVELS:
-            up = await _find_user(current.get("referred_by"))
-            if not up:
-                break
-            uplines.append(up)
-            current = up
-        if uplines:
-            weights = [0.5 ** (i + 1) for i in range(len(uplines))]
-            wsum = sum(weights)
-            for lvl, (up, w) in enumerate(zip(uplines, weights), start=2):
-                amt = round(bd["chain_amount"] * w / wsum, 2)
-                if amt <= 0:
-                    continue
-                await _credit_wallet(up["id"], amt, "chain", ref_id,
-                                     f"Chain bonus (L{lvl}) from {buyer_name}", now,
-                                     total_field="total_chain_earnings")
-                await db.referral_earnings.insert_one({
-                    "referrer_id": up["id"], "buyer_id": buyer.get("id"), "buyer_name": buyer_name,
-                    "amount": amt, "percent": bd["chain_percent"], "net_paid": bd["net_paid"],
-                    "kind": "chain", "level": lvl, "reference_id": ref_id, "created_at": now})
-                await write_ledger("chain", "chain_earning", amt, now, reference_id=ref_id,
-                                   user_id=up["id"], user_name=up.get("name"), store_id=sid,
-                                   store_name=store_name, buyer_id=buyer.get("id"),
-                                   buyer_name=buyer_name, percent=bd["chain_percent"],
-                                   note=f"Chain bonus level {lvl} from {buyer_name}")
-                await db.notifications.insert_one({
-                    "user_id": up["id"], "title": "Chain Bonus",
-                    "message": f"You earned ₹{amt:.2f} chain bonus (level {lvl})",
-                    "type": "referral", "is_read": False, "created_at": now})
+    # Chain reward — 5-tier plan walked up the invite chain (level 1 = buyer's inviter)
+    if bd["chain_amount"] > 0:
+        await _distribute_chain(buyer, bd, ref_id, now, store_name, sid, store_tiers_cache)
 
 
 # ─── Legacy single-level referral (kept for any old callers) ──

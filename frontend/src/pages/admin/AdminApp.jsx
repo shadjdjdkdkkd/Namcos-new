@@ -11,6 +11,7 @@ import AdminTransactions from './AdminTransactions';
 import AdminBusinessTypes from './AdminBusinessTypes';
 import AdminAccount from './AdminAccount';
 import AdminSettings from './AdminSettings';
+import AdminChain from './AdminChain';
 import AdminBanners from './AdminBanners';
 import AdminCategories from './AdminCategories';
 import AdminSubcategories from './AdminSubcategories';
@@ -40,6 +41,7 @@ export default function AdminApp() {
         <Route path="support" element={<AdminSupport />} />
         <Route path="add" element={<AdminManualAdd />} />
         <Route path="settings" element={<AdminSettings />} />
+        <Route path="chain" element={<AdminChain />} />
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Routes>
     </AdminLayout>

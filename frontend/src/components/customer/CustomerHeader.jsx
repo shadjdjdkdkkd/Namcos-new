@@ -1,3 +1,4 @@
+import { appName } from '@/lib/brand';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, ChevronDown, Wallet, Bell } from 'lucide-react';
@@ -38,7 +39,7 @@ export default function CustomerHeader({ locality, onLocationChange, km, onKmCha
         <div className="flex items-center justify-between px-4 py-3 gap-2">
           {/* Brand — compact */}
           <div className="flex flex-col leading-none flex-shrink-0">
-            <span className="text-lg font-black text-[#0F4C3A] tracking-tight">NAMCOS</span>
+            <span className="text-lg font-black text-[#0F4C3A] tracking-tight">{appName()}</span>
             <span className="text-[9px] text-slate-400 font-semibold tracking-wide">Local Commerce Ecosystem</span>
           </div>
 

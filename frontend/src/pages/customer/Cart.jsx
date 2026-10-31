@@ -1,3 +1,4 @@
+import { appName } from '@/lib/brand';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ShoppingCart, Trash2, Minus, Plus, Tag, CheckCircle, Loader2 } from 'lucide-react';
@@ -170,7 +171,7 @@ export default function Cart() {
           {discount && (
             <div className="mt-3 bg-green-50 border border-green-200 rounded-xl p-2.5 flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
-              <p className="text-xs text-green-700">NAMCOS Offer applied: Save {formatCurrency(discountAmount)}</p>
+              <p className="text-xs text-green-700">{appName()} Offer applied: Save {formatCurrency(discountAmount)}</p>
             </div>
           )}
         </div>
